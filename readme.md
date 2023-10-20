@@ -1,12 +1,2 @@
-test
-This is a commit from main
-1
-2
-3
-4
-5
-6
-A change from dean-branch
-0
-1
-2
+# Read Me
+## This is a repo to mess around with git

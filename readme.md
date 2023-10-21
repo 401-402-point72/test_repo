@@ -1,5 +1,6 @@
 # Read Me
 ## This is a repo to mess around with git
+Try and make some commits and then make some pull requests.
 ## Aliases
 The `/aliases` folder has some useful git and rust aliases that I use that I think everyone might find helpful.
 

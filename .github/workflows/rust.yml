@@ -17,14 +17,15 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run:  current_dir="$(basename "$PWD")"
+      run: |
+        current_dir="$(basename "$PWD")"
 
-            if [ -d "$current_dir" ]; then
-              cd "$current_dir"
-              cargo run
-              cd ../
-            else
-              echo "No project folder was found: $current_dir"
-            fi
+        if [ -d "$current_dir" ]; then
+          cd "$current_dir"
+          cargo run
+          cd ../
+        else
+          echo "No project folder was found: $current_dir"
+        fi
     - name: Run tests
       run: cargo test --verbose

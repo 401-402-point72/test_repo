@@ -17,6 +17,8 @@ PS1="$GREEN\u@\h$NO_COLOR:\w$BLUE\$(parse_git_branch)$NO_COLOR\$ "
 ```
 Easily open bashrc using `vim ~/.bashrc`.
 
+There are other ways to get a similar effect but this way is pretty straightforward and works with bash shell.
+
 ## Aliases
 The `/aliases` folder has some useful git and rust aliases that I use that I think everyone might find helpful.
 

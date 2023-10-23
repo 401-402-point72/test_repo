@@ -47,3 +47,17 @@ cr() {
     echo "No project folder was found: $current_dir"
   fi
 }
+
+# cargo test for running tests in a cargo project
+# must be in parent directory
+ct() {
+  current_dir="$(basename "$PWD")"
+
+  if [ -d "$current_dir" ]; then
+    cd "$current_dir"
+    cargo test
+    cd ../
+  else
+    echo "No project folder was found: $current_dir"
+  fi
+}

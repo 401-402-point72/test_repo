@@ -21,6 +21,8 @@ There are other ways to get a similar effect but this way is pretty straightforw
 
 I also really like git graph visualizers as they help explain how the repo looks. The one I use the most is [here](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph).
 
+<img src="./images/graph-image.png" alt="screenshot" width="500"/>
+
 ## Aliases
 The `/aliases` folder has some useful git and rust aliases that I use that I think everyone might find helpful.
 

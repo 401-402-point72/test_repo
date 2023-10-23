@@ -1,6 +1,22 @@
-# Read Me
+# test_repo
 ## This is a repo to mess around with git
-Try and make some commits and then make some pull requests.
+I use this to show me what branch I am on when in a git repository.
+
+<img src="./images/branch-image.png" alt="screenshot" width="500"/>
+
+To replicate this, add this code to your `~/.bashrc` file:
+```sh
+function parse_git_branch () {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
+YELLOW="\[\033[0;33m\]"
+GREEN="\[\033[0;32m\]"
+BLUE="\[\033[0;31m\]"
+NO_COLOR="\[\033[0m\]"
+PS1="$GREEN\u@\h$NO_COLOR:\w$BLUE\$(parse_git_branch)$NO_COLOR\$ "
+```
+Easily open bashrc using `vim ~/.bashrc`.
+
 ## Aliases
 The `/aliases` folder has some useful git and rust aliases that I use that I think everyone might find helpful.
 
@@ -10,6 +26,5 @@ Add this to your `~/.bashrc` file:
 ```sh
 source /path/to/your/alias/file
 ```
-Easily open bashrc using `vim ~/.bashrc`.
 
 You can either restart your console or run `source ~/.bashrc` to have the aliases work.

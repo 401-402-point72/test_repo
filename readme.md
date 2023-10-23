@@ -1,5 +1,5 @@
 # test_repo
-## This is a repo to mess around with git
+## Git Branches
 I use this to show me what branch I am on when in a git repository.
 
 <img src="./images/branch-image.png" alt="screenshot" width="500"/>
@@ -18,6 +18,8 @@ PS1="$GREEN\u@\h$NO_COLOR:\w$BLUE\$(parse_git_branch)$NO_COLOR\$ "
 Easily open bashrc using `vim ~/.bashrc`.
 
 There are other ways to get a similar effect but this way is pretty straightforward and works with bash shell.
+
+I also really like git graph visualizers as they help explain how the repo looks. The one I use the most is [here](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph).
 
 ## Aliases
 The `/aliases` folder has some useful git and rust aliases that I use that I think everyone might find helpful.

@@ -52,6 +52,8 @@ solana-client = "1.10"
 solana-sdk = "1.10"
 ```
 
+- Handle Soloana event data
+
 ### Tokio
 
 ```toml

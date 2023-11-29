@@ -29,6 +29,13 @@ gnew() {
     git push --set-upstream origin "$1"
 }
 
+# opens the repo on github in a web browser
+# MAY HAVE TO DOWNLOAD wslview FIRST
+gopen() {
+  url=$(git config --get remote.origin.url)
+  wslview $url
+}
+
 # git push
 gp() {
     git push origin

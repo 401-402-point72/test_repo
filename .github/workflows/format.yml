@@ -1,4 +1,4 @@
-name: Format and Open PR on Merge
+name: Format
 
 on:
   pull_request:
@@ -35,6 +35,7 @@ jobs:
                 cd ../
 
                 if [ -n "$(git status --porcelain)" ]; then
+                  git branch -b formatter
                   git add .
                   git commit -m "Format code"
                   git push origin formatter

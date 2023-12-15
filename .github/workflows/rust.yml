@@ -60,6 +60,7 @@ jobs:
             echo "Formatted repo and opened pr"
           else
             echo "Nothing to format"
+          fi
         else
           echo "No project folder was found: $current_dir"
         fi

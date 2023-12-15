@@ -1,0 +1,46 @@
+name: Format and Open PR on Merge
+
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: write
+  pages: write
+  pull-requests: write
+
+env:
+  CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ github.token }}
+
+jobs:
+  format_and_open_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run formatter and open PR
+        run: |
+            current_dir="$(basename "$PWD")"
+
+            if [ -d "$current_dir" ]; then
+                cd "$current_dir"
+                cargo fmt
+                cd ../
+
+                if [ -n "$(git status --porcelain)" ]; then
+                  git add .
+                  git commit -m "Format code"
+                  git push origin formatter
+
+                  gh pr create --base main --head formatted-branch --title "Format code" --body "This pull request contains formatted code."
+                  echo "Formatted repo and opened pr"
+                else
+                  echo "Nothing to format"
+                fi
+            else
+                echo "No project folder was found: $current_dir"
+            fi

@@ -40,7 +40,7 @@ jobs:
                   git commit -m "Format code"
                   git push origin formatter
 
-                  gh pr create --base main --head formatted-branch --title "Format code" --body "This pull request contains formatted code."
+                  gh pr create --base main --head formatter --title "Format code" --body "This pull request contains formatted code."
                   echo "Formatted repo and opened pr"
                 else
                   echo "Nothing to format"

@@ -1,4 +1,4 @@
-name: Format and Open PR on Merge
+name: Format
 
 on:
   pull_request:

@@ -5,9 +5,6 @@ pub mod my_module {
 }
 
 fn main() {
-
-
-    
     let message = my_module::greeting();
     println!("{}", message);
 }

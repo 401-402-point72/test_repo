@@ -35,6 +35,7 @@ jobs:
                 cd ../
 
                 if [ -n "$(git status --porcelain)" ]; then
+                  git push --delete origin formatter
                   git checkout -b formatter
                   git add .
                   git commit -m "Format code"

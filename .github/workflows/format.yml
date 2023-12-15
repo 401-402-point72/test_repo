@@ -5,6 +5,15 @@ on:
     types:
       - closed
 
+permissions:
+  contents: write
+  pages: write
+  pull-requests: write
+
+env:
+  CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ github.token }}
+
 jobs:
   format_and_open_pr:
     runs-on: ubuntu-latest

@@ -38,3 +38,14 @@ jobs:
         else
           echo "No project folder was found: $current_dir"
         fi
+    - name: Run formatter
+      run: |
+        current_dir="$(basename "$PWD")"
+        
+        if [ -d "$current_dir" ]; then
+          cd "$current_dir"
+          cargo fmt
+          cd ../
+        else
+          echo "No project folder was found: $current_dir"
+        fi

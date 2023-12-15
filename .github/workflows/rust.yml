@@ -47,17 +47,19 @@ jobs:
           cargo fmt
           cd ../
 
-          git config user.email "actions@example.com"
-          git config user.name "GitHub Actions"
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.email "actions@example.com"
+            git config user.name "GitHub Actions"
 
-          git checkout -b formatter
-          git add .
-          git commit -m "Format code"
-          git push origin formatter
+            git checkout -b formatter
+            git add .
+            git commit -m "Format code"
+            git push origin formatter
 
-          gh pr create --base main --head formatted-branch --title "Format code" --body "This pull request contains formatted code."
-
-          echo "Formatted Repo"
+            gh pr create --base main --head formatted-branch --title "Format code" --body "This pull request contains formatted code."
+            echo "Formatted repo and opened pr"
+          else
+            echo "Nothing to format"
         else
           echo "No project folder was found: $current_dir"
         fi

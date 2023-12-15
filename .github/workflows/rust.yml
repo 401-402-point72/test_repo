@@ -46,6 +46,14 @@ jobs:
           cd "$current_dir"
           cargo fmt
           cd ../
+
+          git checkout -b formatter
+          git add .
+          git commit -m "Format code"
+          git push origin formatter
+
+          gh pr create --base main --head formatted-branch --title "Format code" --body "This pull request contains formatted code."
+
           echo "Formatted Repo"
         else
           echo "No project folder was found: $current_dir"

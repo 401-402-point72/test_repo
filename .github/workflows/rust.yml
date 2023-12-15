@@ -47,6 +47,9 @@ jobs:
           cargo fmt
           cd ../
 
+          git config user.email "actions@example.com"
+          git config user.name "GitHub Actions"
+
           git checkout -b formatter
           git add .
           git commit -m "Format code"

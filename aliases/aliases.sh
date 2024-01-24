@@ -41,6 +41,21 @@ gp() {
     git push origin
 }
 
+# git push --force, for pushing after a rebase
+gpf() {
+  git push origin -f
+}
+
+# git stash
+gst() {
+  git stash
+}
+
+# git stash pop
+gsp() {
+  git stash pop
+}
+
 # cargo run (for building rust projects)
 # must be in parent directory of repo
 cr() {

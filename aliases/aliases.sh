@@ -29,6 +29,13 @@ gnew() {
     git push --set-upstream origin "$1"
 }
 
+# opens the repo on github in a web browser
+# MAY HAVE TO DOWNLOAD wslview FIRST
+gopen() {
+  url=$(git config --get remote.origin.url)
+  wslview $url
+}
+
 # git push
 gp() {
     git push origin
@@ -56,6 +63,20 @@ ct() {
   if [ -d "$current_dir" ]; then
     cd "$current_dir"
     cargo test
+    cd ../
+  else
+    echo "No project folder was found: $current_dir"
+  fi
+}
+
+# cargo format runs a formatter on all files in the src folder
+# must be in parent directory
+cf() {
+  current_dir="$(basename "$PWD")"
+
+  if [ -d "$current_dir" ]; then
+    cd "$current_dir"
+    cargo fmt
     cd ../
   else
     echo "No project folder was found: $current_dir"

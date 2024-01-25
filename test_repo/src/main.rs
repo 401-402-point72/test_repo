@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     for tx in transactions {
                         println!("{}: {:?}","Transaction Hash".green(), tx.hash);
                         println!("{}: {:?}","From".green(), tx.from);
-                        println!("{}: {:?}","To".green(), tx.to.unwrap());
+                        println!("{}: {:?}","To".green(), tx.to);
                         println!("{}: {:?}","Value".green(), tx.value);
                     }
                 }

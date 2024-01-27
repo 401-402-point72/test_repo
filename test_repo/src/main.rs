@@ -12,13 +12,16 @@ pub mod web3 {
     pub async fn main() -> web3::Result<()> {
         dotenv::dotenv().ok();
 
+        // Build the connection to the network
         let websocket = web3::transports::WebSocket::new(&env::var("INFURA_SEPOLIA").unwrap()).await?;
         let web3s = web3::Web3::new(websocket);
 
+        // Get accounts from the connected node
         let mut accounts = web3s.eth().accounts().await?;
         accounts.push(H160::from_str(&env::var("ACCOUNT_ADDRESS").unwrap()).unwrap());
         println!("Accounts: {:?}", accounts);
 
+        // Print those accounts' balances converted to Eth
         for account in accounts {
             let balance = web3s.eth().balance(account, None).await?;
             println!("Eth balance of {:?} {}", account, wei_to_eth(balance));

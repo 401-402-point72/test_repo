@@ -1,54 +1,124 @@
-use ethers::prelude::*;
-use chrono::Utc;
-use std::time::Duration;
-use colored::Colorize;
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
+#![allow(clippy::result_large_err)]
 
-const RPC_URL: &str = "https://eth.llamarpc.com";
+use aws_config::meta::region::RegionProviderChain;
+use aws_sdk_s3::primitives::ByteStream;
+use aws_sdk_s3::{config::Region, meta::PKG_VERSION, Client, Error};
+use clap::Parser;
+use std::path::Path;
+use std::process;
 
-#[tokio::main]
+#[derive(Debug, Parser)]
+struct Opt {
+    /// The AWS Region.
+    #[structopt(short, long)]
+    region: Option<String>,
 
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let provider = Provider::<Http>::try_from(RPC_URL)?;
-    let mut old_block_number: U64 = provider.get_block_number().await?;
-    loop {
-        let new_block_number: U64 = provider.get_block_number().await?;
-        if new_block_number != old_block_number{
-            let current_time = Utc::now();
-            println!("{current_time}\nCurrent Block Number: {new_block_number}");
+    /// The name of the bucket.
+    #[structopt(short, long)]
+    bucket: String,
 
-            let block = provider.get_block_with_txs(BlockId::Number(new_block_number.into())).await;
+    /// The name of the file to upload.
+    #[structopt(short, long)]
+    filename: String,
 
-            if let Ok(block_result) = block {
-                if let Some(hash) = block_result.as_ref().and_then(|b| b.hash) {
-                    println!("{}: {:?}", "Block Hash".red(), hash);
-                }
-                if let Some(timestamp) = block_result.as_ref().and_then(|b| Some(b.timestamp)) {
-                    println!("{}: {:?}","Timestamp".red(), timestamp);
-                }
-                if let Some(gas_used) = block_result.as_ref().and_then(|b| Some(b.gas_used)) {
-                    println!("{}: {:?}","Gas Used".red(), gas_used);
-                }
-                if let Some(gas_limit) = block_result.as_ref().and_then(|b| Some(b.gas_limit)) {
-                    println!("{}: {:?}","Gas Limit".red(), gas_limit);
-                }
+    /// The name of the object in the bucket.
+    #[structopt(short, long)]
+    key: String,
 
-                tokio::time::sleep(Duration::from_secs(3)).await;
-                if let Some(transactions) = block_result.as_ref().and_then(|b| Some(b.transactions.iter())) {
-                    for tx in transactions {
-                        println!("{}: {:?}","Transaction Hash".green(), tx.hash);
-                        println!("{}: {:?}","From".green(), tx.from);
-                        println!("{}: {:?}","To".green(), tx.to);
-                        println!("{}: {:?}","Value".green(), tx.value);
-                    }
-                }
-            }
-            else{
-                println!("Failed to retrieve the block {:?}", block);
-            }
-            old_block_number = new_block_number;
-            println!("");
-        }
-        tokio::time::sleep(Duration::from_secs(1)).await;
+    /// Whether to display additional information.
+    #[structopt(short, long)]
+    verbose: bool,
+}
+
+// Upload a file to a bucket.
+// snippet-start:[s3.rust.s3-helloworld]
+async fn upload_object(
+    client: &Client,
+    bucket: &str,
+    filename: &str,
+    key: &str,
+) -> Result<(), Error> {
+    let resp = client.list_buckets().send().await?;
+
+    for bucket in resp.buckets() {
+        println!("bucket: {:?}", bucket.name().unwrap_or_default())
     }
+
+    println!();
+
+    let body = ByteStream::from_path(Path::new(filename)).await;
+
+    match body {
+        Ok(b) => {
+            let resp = client
+                .put_object()
+                .bucket(bucket)
+                .key(key)
+                .body(b)
+                .send()
+                .await?;
+
+            println!("Upload success. Version: {:?}", resp.version_id);
+
+            let resp = client.get_object().bucket(bucket).key(key).send().await?;
+            let data = resp.body.collect().await;
+            println!("data: {:?}", data.unwrap().into_bytes());
+        }
+        Err(e) => {
+            println!("Got an error uploading object:");
+            println!("{}", e);
+            process::exit(1);
+        }
+    }
+
+    Ok(())
+}
+// snippet-end:[s3.rust.s3-helloworld]
+
+/// Lists your buckets and uploads a file to a bucket.
+/// # Arguments
+///
+/// * `-b BUCKET` - The bucket to which the file is uploaded.
+/// * `-k KEY` - The name of the file to upload to the bucket.
+/// * `[-r REGION]` - The Region in which the client is created.
+///    If not supplied, uses the value of the **AWS_REGION** environment variable.
+///    If the environment variable is not set, defaults to **us-east-1**.
+/// * `[-v]` - Whether to display additional information.
+#[tokio::main]
+async fn main() -> Result<(), Error> {
+    tracing_subscriber::fmt::init();
+
+    let Opt {
+        bucket,
+        filename,
+        key,
+        region,
+        verbose,
+    } = Opt::parse();
+
+    let region_provider = RegionProviderChain::first_try(region.map(Region::new))
+        .or_default_provider()
+        .or_else(Region::new("us-east-1"));
+
+    println!();
+
+    if verbose {
+        println!("S3 client version: {}", PKG_VERSION);
+        println!(
+            "Region:            {}",
+            region_provider.region().await.unwrap().as_ref()
+        );
+        println!("Bucket:            {}", &bucket);
+        println!("Filename:          {}", &filename);
+        println!("Key:               {}", &key);
+        println!();
+    }
+
+    let shared_config = aws_config::from_env().region(region_provider).load().await;
+    let client = Client::new(&shared_config);
+
+    upload_object(&client, &bucket, &filename, &key).await
 }

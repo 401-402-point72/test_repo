@@ -40,6 +40,7 @@ pub mod web3 {
 
             let blockNumber = latest_block.number.unwrap();
 
+            // Do not print block if that one was already printed
             if blockNumber != previous_block_number {
                 println!(
                     "block number {}, number of transactions: {}, difficulty {}",

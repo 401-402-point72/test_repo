@@ -26,8 +26,8 @@ jobs:
         run: |
             current_dir="$(basename "$PWD")"
 
-            git config user.email "actions@example.com"
-            git config user.name "GitHub Actions"
+            git config user.email "github-actions@github.com"
+            git config user.name "github-actions"
 
             if [ -d "$current_dir" ]; then
                 cd "$current_dir"

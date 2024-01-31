@@ -93,8 +93,6 @@ aws-sdk-rust = "0.1"
 
 Pick one or some of:
 
-- Blockchain APIs
-- Data manipulation
 - DB APIs
 - DBA
 

@@ -3,6 +3,8 @@ pub mod web3 {
     use std::collections::HashMap;
     use std::env;
     use std::str::FromStr;
+    use std::thread;
+    use std::time::Duration;
     use web3::types::{Address, BlockId, BlockNumber, H160, U256, U64};
 
     fn wei_to_eth(wei_val: U256) -> f64 {
@@ -38,9 +40,8 @@ pub mod web3 {
             println!("Eth balance of {:?} {}", account, wei_to_eth(balance));
         }
 
-        // Used for caching 10 newest blocks so we don't store duplicates
-        let mut previous_block_numbers: HashMap<U64, bool> = HashMap::new();
-        let mut i: i32 = 0;
+        // Used for caching latest block number
+        let mut previous_block_number: U64 = U64([u64::min_value(); 1]);
 
         while true {
             // Get the latest block
@@ -54,7 +55,7 @@ pub mod web3 {
             let block_number = latest_block.number.unwrap();
 
             // Do not print block if that one was already printed
-            if !previous_block_numbers.contains_key(&block_number) {
+            if block_number > previous_block_number {
                 println!(
                     "block number {}, number of transactions: {}, difficulty {} @ {}",
                     latest_block.number.unwrap(),
@@ -64,14 +65,10 @@ pub mod web3 {
                 );
             }
 
-            // only cache the 10 latest blocks
-            if i == 10 {
-                i = 0;
-                previous_block_numbers.clear();
-            }
+            previous_block_number = block_number;
 
-            previous_block_numbers.insert(block_number, true);
-            i += 1;
+            // limits the number of requests we make
+            thread::sleep(Duration::from_secs(1));
         }
         Ok(())
     }

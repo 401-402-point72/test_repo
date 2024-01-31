@@ -22,6 +22,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: 'Get Secrets'
+      run: |
+        echo "${{ secrets.ENV_FILE }}" > .env
     - name: Build
       run: |
         current_dir="$(basename "$PWD")"

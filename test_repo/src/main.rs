@@ -1,4 +1,5 @@
 pub mod web3 {
+    use std::collections::HashMap;
     use std::env;
     use std::str::FromStr;
     use web3::types::{Address, BlockId, BlockNumber, H160, U256, U64};
@@ -28,30 +29,40 @@ pub mod web3 {
             println!("Eth balance of {:?} {}", account, wei_to_eth(balance));
         }
 
-        let mut previous_block_number: U64 = U64([u64::min_value(); 1]);
+        // Used for caching 10 newest blocks so we don't store duplicates
+        let mut previous_block_numbers: HashMap<U64, bool> = HashMap::new();
+        let mut i: i32 = 0;
 
-        // Get the latest block
-        let latest_block = web3s
-            .eth()
-            .block(BlockId::Number(BlockNumber::Latest))
-            .await
-            .unwrap()
-            .unwrap();
+        while true {
+            // Get the latest block
+            let latest_block = web3s
+                .eth()
+                .block(BlockId::Number(BlockNumber::Latest))
+                .await
+                .unwrap()
+                .unwrap();
 
-        let blockNumber = latest_block.number.unwrap();
+            let block_number = latest_block.number.unwrap();
 
-        // Do not print block if that one was already printed
-        if blockNumber != previous_block_number {
-            println!(
-                "block number {}, number of transactions: {}, difficulty {}",
-                latest_block.number.unwrap(),
-                &latest_block.transactions.len(),
-                &latest_block.total_difficulty.unwrap()
-            );
+            // Do not print block if that one was already printed
+            if !previous_block_numbers.contains_key(&block_number) {
+                println!(
+                    "block number {}, number of transactions: {}, difficulty {}",
+                    latest_block.number.unwrap(),
+                    &latest_block.transactions.len(),
+                    &latest_block.total_difficulty.unwrap()
+                );
+            }
+
+            // only cache the 10 latest blocks
+            if i == 10 {
+                i = 0;
+                previous_block_numbers.clear();
+            }
+
+            previous_block_numbers.insert(block_number, true);
+            i += 1;
         }
-
-        previous_block_number = blockNumber;
-
         Ok(())
     }
 }

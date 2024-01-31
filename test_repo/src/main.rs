@@ -1,4 +1,5 @@
 pub mod web3 {
+    use chrono::{DateTime, Local, TimeZone};
     use std::collections::HashMap;
     use std::env;
     use std::str::FromStr;
@@ -7,6 +8,14 @@ pub mod web3 {
     fn wei_to_eth(wei_val: U256) -> f64 {
         let res = wei_val.as_u128() as f64;
         res / 1_000_000_000_000_000_000.0
+    }
+
+    fn convert_date(timestamp_str: &str) -> DateTime<Local> {
+        if let Ok(timestamp) = timestamp_str.parse::<i64>() {
+            return Local.timestamp(timestamp, 0);
+        } else {
+            return Local.timestamp(0, 0);
+        }
     }
 
     #[tokio::main]
@@ -47,10 +56,11 @@ pub mod web3 {
             // Do not print block if that one was already printed
             if !previous_block_numbers.contains_key(&block_number) {
                 println!(
-                    "block number {}, number of transactions: {}, difficulty {}",
+                    "block number {}, number of transactions: {}, difficulty {} @ {}",
                     latest_block.number.unwrap(),
                     &latest_block.transactions.len(),
-                    &latest_block.total_difficulty.unwrap()
+                    &latest_block.total_difficulty.unwrap(),
+                    convert_date(&latest_block.timestamp.to_string())
                 );
             }
 

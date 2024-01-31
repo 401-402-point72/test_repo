@@ -29,29 +29,29 @@ pub mod web3 {
         }
 
         let mut previous_block_number: U64 = U64([u64::min_value(); 1]);
-        while true {
-            // Get the latest block
-            let latest_block = web3s
-                .eth()
-                .block(BlockId::Number(BlockNumber::Latest))
-                .await
-                .unwrap()
-                .unwrap();
 
-            let blockNumber = latest_block.number.unwrap();
+        // Get the latest block
+        let latest_block = web3s
+            .eth()
+            .block(BlockId::Number(BlockNumber::Latest))
+            .await
+            .unwrap()
+            .unwrap();
 
-            // Do not print block if that one was already printed
-            if blockNumber != previous_block_number {
-                println!(
-                    "block number {}, number of transactions: {}, difficulty {}",
-                    latest_block.number.unwrap(),
-                    &latest_block.transactions.len(),
-                    &latest_block.total_difficulty.unwrap()
-                );
-            }
+        let blockNumber = latest_block.number.unwrap();
 
-            previous_block_number = blockNumber;
+        // Do not print block if that one was already printed
+        if blockNumber != previous_block_number {
+            println!(
+                "block number {}, number of transactions: {}, difficulty {}",
+                latest_block.number.unwrap(),
+                &latest_block.transactions.len(),
+                &latest_block.total_difficulty.unwrap()
+            );
         }
+
+        previous_block_number = blockNumber;
+
         Ok(())
     }
 }

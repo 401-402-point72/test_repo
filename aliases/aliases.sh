@@ -56,6 +56,16 @@ gsp() {
   git stash pop
 }
 
+# interactive rebase
+gri() {
+  git rebase -i HEAD~$1
+}
+
+# rebase on main
+grm() {
+  git rebase main
+}
+
 # cargo run (for building rust projects)
 # must be in parent directory of repo
 cr() {

@@ -1,128 +1,149 @@
-// pub mod s3 {
-//     // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-//     // SPDX-License-Identifier: Apache-2.0
-//     #![allow(clippy::result_large_err)]
+use std::io;
+use std::thread;
 
-//     use aws_config::meta::region::RegionProviderChain;
-//     use aws_sdk_s3::primitives::ByteStream;
-//     use aws_sdk_s3::{config::Region, meta::PKG_VERSION, Client, Error};
-//     use clap::Parser;
-//     use std::path::Path;
-//     use std::process;
+pub mod s3 {
+    // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+    // SPDX-License-Identifier: Apache-2.0
+    #![allow(clippy::result_large_err)]
 
-//     #[derive(Debug, Parser)]
-//     struct Opt {
-//         /// The AWS Region.
-//         #[structopt(short, long)]
-//         region: Option<String>,
+    use aws_config::meta::region::RegionProviderChain;
+    use aws_sdk_s3::primitives::ByteStream;
+    use aws_sdk_s3::{config::Region, meta::PKG_VERSION, Client, Error};
+    use clap::Parser;
+    use std::path::Path;
+    use std::process;
+    use std::io;
+    
 
-//         /// The name of the bucket.
-//         #[structopt(short, long)]
-//         bucket: String,
+    #[derive(Debug, Parser)]
+    struct Opt {
+        /// The AWS Region.
+        #[structopt(short, long)]
+        region: Option<String>,
 
-//         /// The name of the file to upload.
-//         #[structopt(short, long)]
-//         filename: String,
+        /// The name of the bucket.
+        #[structopt(short, long)]
+        bucket: String,
 
-//         /// The name of the object in the bucket.
-//         #[structopt(short, long)]
-//         key: String,
+        /// The name of the file to upload.
+        #[structopt(short, long)]
+        filename: String,
 
-//         /// Whether to display additional information.
-//         #[structopt(short, long)]
-//         verbose: bool,
-//     }
+        /// The name of the object in the bucket.
+        #[structopt(short, long)]
+        key: String,
 
-//     // Upload a file to a bucket.
-//     // snippet-start:[s3.rust.s3-helloworld]
-//     async fn upload_object(
-//         client: &Client,
-//         bucket: &str,
-//         filename: &str,
-//         key: &str,
-//     ) -> Result<(), Error> {
-//         let resp = client.list_buckets().send().await?;
+        /// Whether to display additional information.
+        #[structopt(short, long)]
+        verbose: bool,
+    }
 
-//         for bucket in resp.buckets() {
-//             println!("bucket: {:?}", bucket.name().unwrap_or_default())
-//         }
+    // Upload a file to a bucket.
+    // snippet-start:[s3.rust.s3-helloworld]
+    async fn upload_object(
+        client: &Client,
+        bucket: &str,
+        filename: &str,
+        key: &str,
+    ) -> Result<(), Error> {
+        let resp = client.list_buckets().send().await?;
 
-//         println!();
+        for bucket in resp.buckets() {
+            println!("bucket: {:?}", bucket.name().unwrap_or_default())
+        }
 
-//         let body = ByteStream::from_path(Path::new(filename)).await;
+        println!();
 
-//         match body {
-//             Ok(b) => {
-//                 let resp = client
-//                     .put_object()
-//                     .bucket(bucket)
-//                     .key(key)
-//                     .body(b)
-//                     .send()
-//                     .await?;
+        let body = ByteStream::from_path(Path::new(filename)).await;
 
-//                 println!("Upload success. Version: {:?}", resp.version_id);
+        match body {
+            Ok(b) => {
+                let resp = client
+                    .put_object()
+                    .bucket(bucket)
+                    .key(key)
+                    .body(b)
+                    .send()
+                    .await?;
 
-//                 let resp = client.get_object().bucket(bucket).key(key).send().await?;
-//                 let data = resp.body.collect().await;
-//                 println!("data: {:?}", data.unwrap().into_bytes());
-//             }
-//             Err(e) => {
-//                 println!("Got an error uploading object:");
-//                 println!("{}", e);
-//                 process::exit(1);
-//             }
-//         }
+                println!("Upload success. Version: {:?}", resp.version_id);
 
-//         Ok(())
-//     }
-//     // snippet-end:[s3.rust.s3-helloworld]
+                let resp = client.get_object().bucket(bucket).key(key).send().await?;
+                let data = resp.body.collect().await;
+                // println!("data: {:?}", data.unwrap().into_bytes());
+            }
+            Err(e) => {
+                println!("Got an error uploading object:");
+                println!("{}", e);
+                process::exit(1);
+            }
+        }
 
-//     /// Lists your buckets and uploads a file to a bucket.
-//     /// # Arguments
-//     ///
-//     /// * `-b BUCKET` - The bucket to which the file is uploaded.
-//     /// * `-k KEY` - The name of the file to upload to the bucket.
-//     /// * `[-r REGION]` - The Region in which the client is created.
-//     ///    If not supplied, uses the value of the **AWS_REGION** environment variable.
-//     ///    If the environment variable is not set, defaults to **us-east-1**.
-//     /// * `[-v]` - Whether to display additional information.
-//     #[tokio::main]
-//     async fn main() -> Result<(), Error> {
-//         tracing_subscriber::fmt::init();
+        Ok(())
+    }
+    // snippet-end:[s3.rust.s3-helloworld]
 
-//         let Opt {
-//             bucket,
-//             filename,
-//             key,
-//             region,
-//             verbose,
-//         } = Opt::parse();
+    /// Lists your buckets and uploads a file to a bucket.
+    /// # Arguments
+    ///
+    /// * `-b BUCKET` - The bucket to which the file is uploaded.
+    /// * `-k KEY` - The name of the file to upload to the bucket.
+    /// * `[-r REGION]` - The Region in which the client is created.
+    ///    If not supplied, uses the value of the **AWS_REGION** environment variable.
+    ///    If the environment variable is not set, defaults to **us-east-1**.
+    /// * `[-v]` - Whether to display additional information.
+    #[tokio::main]
+    pub async fn main() -> Result<(), Error> {
+        tracing_subscriber::fmt::init();
 
-//         let region_provider = RegionProviderChain::first_try(region.map(Region::new))
-//             .or_default_provider()
-//             .or_else(Region::new("us-east-1"));
+        println!("Enter bucket name:");
+        let mut bucket = String::new();
+        io::stdin().read_line(&mut bucket).expect("Failed to read line");
+        let bucket = bucket.trim();
 
-//         println!();
+        println!("Enter filename:");
+        let mut filename = String::new();
+        io::stdin().read_line(&mut filename).expect("Failed to read line");
+        let filename = filename.trim();
 
-//         if verbose {
-//             println!("S3 client version: {}", PKG_VERSION);
-//             println!(
-//                 "Region:            {}",
-//                 region_provider.region().await.unwrap().as_ref()
-//             );
-//             println!("Bucket:            {}", &bucket);
-//             println!("Filename:          {}", &filename);
-//             println!("Key:               {}", &key);
-//             println!();
-//         }
+        println!("Enter key:");
+        let mut key = String::new();
+        io::stdin().read_line(&mut key).expect("Failed to read line");
+        let key = key.trim();
 
-//         let shared_config = aws_config::from_env().region(region_provider).load().await;
-//         let client = Client::new(&shared_config);
+        // let Opt {
+        //     bucket,
+        //     filename,
+        //     key,
+        //     region,
+        //     verbose,
+        // } = Opt::parse();
 
-//         upload_object(&client, &bucket, &filename, &key).await
-//     }
-// }
+        // let region_provider = RegionProviderChain::first_try(region.map(Region::new))
+        //     .or_default_provider()
+        //     .or_else(Region::new("us-east-1"));
+
+        let region_provider = RegionProviderChain::first_try(Region::new("us-east-1"));
+        println!();
+
+        // if verbose {
+            println!("S3 client version: {}", PKG_VERSION);
+            println!(
+                "Region:            {}",
+                region_provider.region().await.unwrap().as_ref()
+            );
+            println!("Bucket:            {}", &bucket);
+            println!("Filename:          {}", &filename);
+            println!("Key:               {}", &key);
+            println!();
+        // }
+
+        let shared_config = aws_config::from_env().region(region_provider).load().await;
+        let client = Client::new(&shared_config);
+
+        upload_object(&client, &bucket, &filename, &key).await
+    }
+}
 
 pub mod web3 {
     use chrono::{DateTime, Local, TimeZone};
@@ -206,10 +227,34 @@ pub mod my_module {
     }
 }
 
+
 fn main() {
     let message = my_module::greeting();
-    println!("{}", message);
-    let _ = web3::main();
+    println!("Point72 Blockchain Menu: \n(1) listener\n(2) Store Data in S3");
+
+    let mut input = String::new();
+    match io::stdin().read_line(&mut input) {
+        Ok(_) => {
+            input = input.trim().to_string();
+
+            if input == "1" {
+                // Implement lister logic
+            } else if input == "2" {
+                if let Err(e) = s3::main() {
+                    eprintln!("Error running S3 main: {:?}", e);
+                }
+            } else {
+                eprintln!("Error: choose 1 or 2 ");
+            }
+        }
+        Err(error) => {
+            // If an error occurred, print the error message
+            eprintln!("Error reading input: {}", error);
+        }
+    }
+
+    // println!("{}", message);
+    // let _ = web3::main();
 }
 
 #[test]

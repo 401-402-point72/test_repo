@@ -238,7 +238,7 @@ fn main() {
             input = input.trim().to_string();
 
             if input == "1" {
-                // Implement lister logic
+                let _ = web3::main();
             } else if input == "2" {
                 if let Err(e) = s3::main() {
                     eprintln!("Error running S3 main: {:?}", e);

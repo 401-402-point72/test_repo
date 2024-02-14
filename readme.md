@@ -82,6 +82,10 @@ aws-sdk-rust = "0.1"
 
 ## Project Structure
 
+I found a tree that displays how we should aim to structure our cargo repos. Standards like this are extremely common and a great way to compartmentalize a large project so that it stays clean and concise.
+
+<img src="./images/cargo-structure.png" alt="https://doc.rust-lang.org/cargo/guide/project-layout.html" width=900>
+
 ### Roles
 
 - Everyone should try and have some small role in the backend, whether it be data manipulation and translation, API to the blockchain, API to the database, DBA, or even just Cargo structuring
